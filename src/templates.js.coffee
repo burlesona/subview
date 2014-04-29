@@ -18,8 +18,7 @@ window.TPL =
         button#mode1.mode Mode 1
         button#mode2.mode Mode 2
         button#mode3.mode Mode 3
-      .inner
-        == this.currentMode.node
+      == this.currentMode.node
     """
 
   footer: """

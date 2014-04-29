@@ -8,14 +8,12 @@ window.App =
     @layout = new App.Layout
 
 
-
 class App.Layout extends SV.Layout
   template: TPL['layout']
   initialize: ->
     @headerView = new App.HeaderView
     @contentView = new App.ContentView
     @footerView = new App.FooterView
-
 
 
 class App.HeaderView extends SV.View
@@ -34,9 +32,7 @@ class App.ContentView extends SV.View
     @currentMode = @mode1
 
   setMode: (event) ->
-    mode = $(event.target).attr('id')
-    console.log 'setMode event:',mode
-    @currentMode = this[mode]
+    @currentMode = this[ $(event.target).attr('id') ]
     @render()
 
 
@@ -47,18 +43,24 @@ class App.FooterView extends SV.View
 
 class App.ModeOneView extends SV.View
   template: TPL['mode1']
+  tagName: 'div'
+  className: 'inner'
   events:
     'click':'clicked'
   clicked: -> console.log 'You clicked mode 1'
 
 class App.ModeTwoView extends SV.View
   template: TPL['mode2']
+  tagName: 'div'
+  className: 'inner'
   events:
     'click':'clicked'
   clicked: -> console.log 'You clicked mode 2'
 
 class App.ModeThreeView extends SV.View
   template: TPL['mode3']
+  tagName: 'div'
+  className: 'inner'
   events:
     'click':'clicked'
   clicked: -> console.log 'You clicked mode 3'
