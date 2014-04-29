@@ -1,39 +1,7 @@
-# JS Manifest
-# Use Sprockets to define JS load order here
-
-window.test = ->
-  node = document.createElement('p')
-  node.innerHTML = "I'm a <i>generated</i> node!"
-  node.addEventListener 'click', -> console.log 'clicked!'
-  frag = parser.parse strtemplate, {message: "Hello compilation!", li: "first li", node: node}
-  document.body.appendChild(frag)
-
 # NOTE: any Node inserted into the template can only happen once
 # If a node is inserted a second time it will be moved, not cloned
-strtemplate = """
-p = this.message
 
-p
-  | one line
-  | two lines
-  | three lines
-
-div == this.node
-
-ol
-  li = this.li
-  li two levels
-
-ol
-  li
-    b three levels
-  li
-    b three levels
-  li
-    b three levels
-"""
-
-parser =
+window.Fragment =
   parse: (template,data) ->
     rawLines = @splitLines(template)
     objLines = @readLines(rawLines)
