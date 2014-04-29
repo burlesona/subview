@@ -1,25 +1,41 @@
 # NOTE: any Node inserted into the template can only happen once
 # If a node is inserted a second time it will be moved, not cloned
 window.TPL =
-  test: """
-p = this.message
+  layout: """
+    == this.headerView.node
+    == this.contentView.node
+    == this.footerView.node
+    """
 
-p
-  | one line
-  | two lines
-  | three lines
+  header: """
+    header.main
+      h1 I'm a header
+    """
 
-div == this.node
+  content: """
+    .content_view
+      .view-select
+        button#mode1.mode Mode 1
+        button#mode2.mode Mode 2
+        button#mode3.mode Mode 3
+      .inner
+        == this.currentMode.node
+    """
 
-ol
-  li = this.li
-  li two levels
+  footer: """
+    .footer
+      | I'm the footer
+    """
 
-ol
-  li
-    b three levels
-  li
-    b three levels
-  li
-    b three levels
-"""
+  mode1: """
+    p I am mode 1
+  """
+
+  mode2: """
+    p I am mode 2
+  """
+
+  mode3: """
+    p I am mode 3
+  """
+
