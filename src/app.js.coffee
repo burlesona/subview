@@ -46,15 +46,30 @@ class App.ModeOneView extends SV.View
   tagName: 'div'
   className: 'inner'
   events:
-    'click':'clicked'
+    'click .clicky':'clicked'
+  initialize: ->
+    @subview1 = new App.ModeOneSubView message: "I'm subview 1", number: 1
+    @subview2 = new App.ModeOneSubView message: "I'm subview 2", number: 2
   clicked: -> console.log 'You clicked mode 1'
+
+class App.ModeOneSubView extends SV.View
+  template: TPL['m1subview']
+  tagName: 'li'
+  className: 'subview'
+  events:
+    'click button':'clicked'
+  initialize: (options) ->
+    @message = options.message
+    @number = options.number
+  clicked: ->
+    console.log "You clicked mode 1 subview #{@number}"
 
 class App.ModeTwoView extends SV.View
   template: TPL['mode2']
   tagName: 'div'
   className: 'inner'
   events:
-    'click':'clicked'
+    'click .clicky':'clicked'
   clicked: -> console.log 'You clicked mode 2'
 
 class App.ModeThreeView extends SV.View
@@ -62,5 +77,5 @@ class App.ModeThreeView extends SV.View
   tagName: 'div'
   className: 'inner'
   events:
-    'click':'clicked'
+    'click .clicky':'clicked'
   clicked: -> console.log 'You clicked mode 3'

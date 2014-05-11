@@ -1,4 +1,5 @@
 #= require fragment
+#= require evented
 
 # Global Scope
 root = exports ? this
@@ -29,9 +30,9 @@ class SV.View
   className: null
   template: null
   events: null
-  constructor: ->
+  constructor: (options) ->
     @setNode()
-    @initialize()
+    @initialize(options)
     @setEvents()
     @render()
 
@@ -39,7 +40,7 @@ class SV.View
     @node = document.createElement @tagName
     @node.className = @className if @className
 
-  initialize: -> null
+  initialize: (options) -> null
 
   setEvents: ->
     if @events

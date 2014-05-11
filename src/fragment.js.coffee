@@ -1,96 +1,104 @@
 # NOTE: any Node inserted into the template can only happen once
 # If a node is inserted a second time it will be moved, not cloned
 
-window.Fragment =
-  parse: (template,data) ->
-    rawLines = @splitLines(template)
-    objLines = @readLines(rawLines)
-    tree = @buildObjectTree(objLines,0)
-    frag = @buildDOMTree(tree,data)
+# Global Scope
+root = exports ? this
 
-  splitLines: (text) ->
+root.Fragment =
+  parse: (template,data) ->
+    lines = @_parseTemplate(template)
+    tree = @_buildObjectTree(lines,0)
+    @_buildDOMTree(tree,data)
+
+  _parseTemplate: (template) ->
+    lines = @_splitLines(template)
+    @_readLine(line) for line in lines when line
+
+  _splitLines: (text) ->
     text.split(/\r?\n/)
 
-  readLines: (lines) ->
-    @readLine(line) for line in lines when line
-
-  readLine: (string) ->
-    [l,i,t,a,c] = string.match(/(\s*)([\w-\.#]*)?(\(.*\))?\s?(.*)?/i)
-    line = {indent: (i.length/2), tagName: t, attributes:a, content: c}
-    #console.log 'readline return:',line
+  _readLine: (string) ->
+    [l,i,t,a,c] = string.match(/(\s*)([\w-\.#]*)?({.*})?\s?(.*)?/i)
+    line = {}
+    line.indent = (i.length/2)
+    line.tagName = t if t
+    line.attributes = @_prepare(a) if a
+    line.content = @_parseContent(c) if c
     line
 
-  buildObjectTree: (objLines,depth) ->
+  _prepare: (string) ->
+    safe = string.replace("@","this.")
+    new Function("return #{safe};")
+
+  _parseContent: (content) ->
+    switch
+      when r = content.match(/^=\s(.*)/)
+        {type: 'expression', body: @_prepare(r[1])}
+      when r = content.match(/^==\s(.*)/)
+        {type: 'element', body: @_prepare(r[1])}
+      when r = content.match(/^\|\s(.*)/)
+        {type: 'string', body: r[1]}
+      when r = content.match(/^\'\s(.*)/)
+        {type: 'string', body: r[1]+" "}
+      else
+        {type: 'string', body: content}
+
+  _buildObjectTree: (lines,depth) ->
     out = []
-    while line = objLines.shift()
+    while line = lines.shift()
       if line.indent < depth
-        objLines.unshift(line)
+        lines.unshift(line)
         break
       else if line.content
         out.push line
       else
-        children = @buildObjectTree(objLines,line.indent + 1)
+        children = @_buildObjectTree(lines,line.indent + 1)
         line.children = children if children.length
         out.push line
     out
 
-  buildDOMTree: (objTree,data) ->
+  _buildDOMTree: (tree,data) ->
     frag = document.createDocumentFragment()
-    for obj in objTree
-      frag.appendChild @makeNode(obj,data)
+    for obj in tree
+      child = @_makeNode(obj,data)
+      frag.appendChild child if child
     frag
 
-  makeNode: (obj,data) ->
+  _makeNode: (obj,data) ->
     if obj.tagName
-      node = @parseElement(obj.tagName)
-      if obj.content
-        c = @parseContent(obj.content)
+      node = @_makeElement(obj,data)
+      if c = obj.content
         if c.type is 'string'
           node.innerHTML = c.body
         else if c.type is 'expression'
-          expr = new Function("return #{c.body}")
-          node.innerHTML = expr.call(data)
+          result = c.body.call(data)
+          node.innerHTML = result if result
         else if c.type is 'element'
-          expr = new Function("return #{c.body}")
-          node.appendChild expr.call(data)
+          result = c.body.call(data)
+          node.appendChild result if result
       if obj.children
-        node.appendChild @buildDOMTree(obj.children,data)
+        node.appendChild @_buildDOMTree(obj.children,data)
 
-    else
-      c = @parseContent(obj.content)
-      #console.log 'parse content result:',c
+    else if c = obj.content
       if c.type is 'string'
         node = document.createTextNode c.body
       if c.type is 'expression'
-        expr = new Function("return #{c.body}")
-        node = document.createTextNode expr.call(data)
+        result = c.body.call(data)
+        node = document.createTextNode result if result
       else if c.type is 'element'
-        expr = new Function("return #{c.body}")
-        node = expr.call(data)
+        result = c.body.call(data)
+        node = result if result
 
-    #console.log "MakeNode return:", node
     node
 
-  parseElement: (tagName) ->
-    #console.log "parseElement tagName:",tagName
-    r = tagName.match(/(^[\w-]+)?(#[\w-]+)?((?:\.[\w-]+)*)?/i)
-    #console.log "parseElement return:",r
-    [string,tag,id,classes] = r
-    tag ?= 'div'
-    classes = classes.split('.').join(' ').trim() if classes
-    id = id.replace('#','') if id
-    el = document.createElement(tag)
-    el.id = id if id
-    el.className = classes if classes
+  _makeElement: (obj,data) ->
+    [string,tag,id,classes] = obj.tagName.match(/(^[\w-]+)?(#[\w-]+)?((?:\.[\w-]+)*)?/i)
+    el = document.createElement(tag ? 'div')
+    if id
+      el.id = id.replace('#','')
+    if classes
+      el.className = classes.split('.').join(' ').trim()
+    if obj.attributes
+      el.setAttribute(k,v) for k,v of obj.attributes.call(data)
     el
 
-  parseContent: (content) ->
-    switch
-      when r = content.match(/^=\s(.*)/)
-        {type: 'expression', body: r[1]}
-      when r = content.match(/^==\s(.*)/)
-        {type: 'element', body: r[1]}
-      when r = content.match(/^\|\s(.*)/)
-        {type: 'string', body: r[1]+" "}
-      else
-        {type: 'string', body:content}
