@@ -7,7 +7,7 @@ window.App =
   init: ->
     @layout = new App.Layout
 
-
+### LAYOUT ###
 class App.Layout extends SV.Layout
   template: TPL['layout']
   initialize: ->
@@ -16,12 +16,17 @@ class App.Layout extends SV.Layout
     @footerView = new App.FooterView
 
 
+### HEADER ###
 class App.HeaderView extends SV.View
   template: TPL['header']
+  tagName: 'header'
+  className: 'main'
 
 
+### CONTENT ###
 class App.ContentView extends SV.View
   template: TPL['content']
+  className: 'content-view'
   events:
     'click .mode':'setMode'
 
@@ -36,11 +41,13 @@ class App.ContentView extends SV.View
     @render()
 
 
+### FOOTER ###
 class App.FooterView extends SV.View
   template: TPL['footer']
+  tagName: 'footer'
 
 
-
+### MODE VIEWS ###
 class App.ModeOneView extends SV.View
   template: TPL['mode1']
   tagName: 'div'
@@ -51,18 +58,6 @@ class App.ModeOneView extends SV.View
     @subview1 = new App.ModeOneSubView message: "I'm subview 1", number: 1
     @subview2 = new App.ModeOneSubView message: "I'm subview 2", number: 2
   clicked: -> console.log 'You clicked mode 1'
-
-class App.ModeOneSubView extends SV.View
-  template: TPL['m1subview']
-  tagName: 'li'
-  className: 'subview'
-  events:
-    'click button':'clicked'
-  initialize: (options) ->
-    @message = options.message
-    @number = options.number
-  clicked: ->
-    console.log "You clicked mode 1 subview #{@number}"
 
 class App.ModeTwoView extends SV.View
   template: TPL['mode2']
@@ -79,3 +74,16 @@ class App.ModeThreeView extends SV.View
   events:
     'click .clicky':'clicked'
   clicked: -> console.log 'You clicked mode 3'
+
+### MODE SUBVIEWS ###
+class App.ModeOneSubView extends SV.View
+  template: TPL['m1subview']
+  tagName: 'li'
+  className: 'subview'
+  events:
+    'click button':'clicked'
+  initialize: (options) ->
+    @message = options.message
+    @number = options.number
+  clicked: ->
+    console.log "You clicked mode 1 subview #{@number}"

@@ -8,22 +8,19 @@ window.TPL =
     """
 
   header: """
-    header.main
-      h1 I'm a header
+    h1 I'm a header
     """
 
   content: """
-    .content_view
-      .view-select
-        button#mode1.mode Mode 1
-        button#mode2.mode Mode 2
-        button#mode3.mode Mode 3
-      == @currentMode.node
+    .view-select
+      button#mode1.mode Mode 1
+      button#mode2.mode Mode 2
+      button#mode3.mode Mode 3
+    == @currentMode.node
     """
 
   footer: """
-    .footer
-      | I'm the footer
+    | I'm the footer
     """
 
   mode1: """
@@ -31,7 +28,7 @@ window.TPL =
       ' I am mode 1
       button.clicky Click Me
     p
-      ' I have subviews too:'
+      ' I have subviews too:
     ul
       == @subview1.node
       == @subview2.node
